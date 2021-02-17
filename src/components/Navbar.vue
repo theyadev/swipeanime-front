@@ -6,11 +6,14 @@
       <v-toolbar-title>Swipe Anime</v-toolbar-title>
 
       <v-spacer></v-spacer>
-
-      <v-btn @click="login" icon v-if="connected == false">
-        <v-icon>mdi-account-circle</v-icon>
-      </v-btn>
-      <v-menu v-else left bottom>
+      <v-menu
+        v-if="
+          this.$store.state.connected == true ||
+            this.$store.state.connected == 'true'
+        "
+        left
+        bottom
+      >
         <template v-slot:activator="{ on, attrs }">
           <v-btn icon v-bind="attrs" v-on="on">
             <v-icon>mdi-account-circle</v-icon>
@@ -19,7 +22,7 @@
 
         <v-list dense>
           <v-list-item dense @click="() => {}">
-            <v-list-item-title>Profile</v-list-item-title>
+            <v-list-item-title>Update List</v-list-item-title>
           </v-list-item>
           <v-list-item dense @click="() => {}">
             <v-list-item-title>Sign Out</v-list-item-title>
@@ -37,7 +40,7 @@
           <v-list-item>
             <v-list-item-title><b>Home</b></v-list-item-title>
           </v-list-item>
-        <v-divider></v-divider>
+          <v-divider></v-divider>
 
           <v-list-item>
             <v-list-item-title>Account</v-list-item-title>
@@ -57,8 +60,10 @@ export default {
   name: "Navbar",
   data() {
     return {
+      group: null,
       drawer: null,
     };
   },
+  methods: {},
 };
 </script>

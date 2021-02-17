@@ -11,7 +11,7 @@ Vue.use(Vuex);
 const store = new Vuex.Store({
   state: {
     socket: io("localhost:1336"),
-    connected: false,
+    connected: localStorage.connected || false,
   },
   mutations: {
     connection(state) {
