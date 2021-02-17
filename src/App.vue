@@ -1,60 +1,43 @@
 <template>
   <v-app>
-    <v-app-bar
-      app
-      color="primary"
-      dark
+    <Navbar />
+    <v-btn @click.prevent="ping" class="mx-auto mt-10" elevation="2"
+      >PING</v-btn
     >
-      <div class="d-flex align-center">
-        <v-img
-          alt="Vuetify Logo"
-          class="shrink mr-2"
-          contain
-          src="https://cdn.vuetifyjs.com/images/logos/vuetify-logo-dark.png"
-          transition="scale-transition"
-          width="40"
-        />
-
-        <v-img
-          alt="Vuetify Name"
-          class="shrink mt-1 hidden-sm-and-down"
-          contain
-          min-width="100"
-          src="https://cdn.vuetifyjs.com/images/logos/vuetify-name-dark.png"
-          width="100"
-        />
-      </div>
-
-      <v-spacer></v-spacer>
-
-      <v-btn
-        href="https://github.com/vuetifyjs/vuetify/releases/latest"
-        target="_blank"
-        text
-      >
-        <span class="mr-2">Latest Release</span>
-        <v-icon>mdi-open-in-new</v-icon>
-      </v-btn>
-    </v-app-bar>
-
-    <v-main>
-      <HelloWorld/>
-    </v-main>
+    <span class="mx-auto" v-if="res">{{ res }}</span>
+    
   </v-app>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld';
-
+import Navbar from "./components/Navbar.vue";
 export default {
-  name: 'App',
+  name: "App",
 
-  components: {
-    HelloWorld,
+  components: { Navbar },
+
+  data() {
+    return {
+      res: "",
+      connected: true,
+    };
   },
-
-  data: () => ({
-    //
-  }),
+  methods: {
+    login() {
+      console.log("Not Connected");
+    },
+    ping() {
+      this.$store.state.socket.emit("PONG");
+    },
+  },
+  created() {
+    if (localStorage.account) this.connected = true;
+  },
+  mounted() {
+    this.$store.state.socket.on("PONG!", (d) => {
+      var newD = new Date().getTime();
+      this.res = `PONG! ${newD - d}ms `;
+    });
+  },
 };
 </script>
