@@ -73,6 +73,7 @@ export default {
   anime: MediaListCollection(userName: $userName, type: $type) {
     lists {
       entries {
+        status
         media {
           bannerImage
           coverImage {
@@ -83,6 +84,7 @@ export default {
             romaji
             english
           }
+          format
           synonyms
         }
       }
@@ -135,11 +137,24 @@ export default {
       const lists = userExist.data.anime.lists;
       let animes = [];
       lists.forEach((e) => {
+        e.entries = e.entries.filter(
+          (y) =>
+            y.status != "PLANNING" &&
+            y.media.format != "SPECIAL" &&
+            y.media.format != "OVA" &&
+            y.media.format != "MUSIC" &&
+            y.media.format != "SPECIAL"
+        );
+
         animes = [...animes, ...e.entries];
       });
       localStorage.account = JSON.stringify({
         userName: this.name,
         list: animes,
+      });
+      this.$store.state.socket.emit("INIT", {
+        list: animes,
+        of: this.name,
       });
       localStorage.connected = true;
       this.$store.commit("connection");
