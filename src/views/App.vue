@@ -78,22 +78,52 @@
         </v-col>
       </v-row>
     </v-card>
-    <v-btn @click.prevent="ping" class="mx-auto mt-10" elevation="2"
-      >PING</v-btn
-    >
-    <span class="mx-auto" v-if="res">{{ res }}</span>
+    <v-card class="ma-10">
+      <v-card-title>
+        Sorted List
+        <v-spacer></v-spacer>
+        <v-text-field
+          v-model="search"
+          append-icon="mdi-magnify"
+          label="Search"
+          single-line
+          hide-details
+        ></v-text-field>
+      </v-card-title>
+      <v-data-table
+        dense
+        :search="search"
+        :headers="headers"
+        :items="listSorted"
+        :items-per-page="10"
+        loading-text="Loading... Please wait"
+        class="mr-5 ml-5"
+      ></v-data-table>
+    </v-card>
   </v-app>
 </template>
 <script>
 export default {
   data() {
     return {
+      headers: [
+        {
+          text: "#",
+          align: "start",
+          sortable: false,
+          value: "index",
+        },
+        { text: "Name", value: "name" },
+        { text: "Percentage", value: "percentage" },
+        { text: "Points", value: "points" },
+        { text: "Times", value: "times" },
+      ],
+      search: "",
+      list: [],
       random1: null,
       random2: null,
       user: "",
-      list: [],
-      res: "",
-      connected: this.$store.state.connected,
+      listSorted: [],
     };
   },
   methods: {
@@ -103,9 +133,9 @@ export default {
         refus: other,
         by: this.user,
       });
-    },
-    ping() {
-      this.$store.state.socket.emit("PONG");
+      this.$store.state.socket.emit("GET", {
+        of: this.user,
+      });
     },
     randomAnimes() {
       this.random1 = this.list[
@@ -124,7 +154,7 @@ export default {
     },
   },
   created() {
-    if (this.connected == false) {
+    if (this.$store.state.connected == false) {
       this.$router.push("/connexion");
     }
   },
@@ -135,13 +165,34 @@ export default {
 
     this.randomAnimes();
 
-    this.$store.state.socket.on("OK", () => {
-      this.randomAnimes();
+    this.$store.state.socket.emit("GET", {
+      of: this.user,
     });
 
-    this.$store.state.socket.on("PONG!", (d) => {
-      var newD = new Date().getTime();
-      this.res = `PONG! ${newD - d}ms `;
+    this.$store.state.socket.on("GET", (data) => {
+      let x = data.sort(function(a, b) {
+        return b[1].pts - a[1].pts || b[1].times - a[1].times;
+      });
+      const map = new Map(x);
+
+      let i = 1;
+      this.listSorted = [];
+      for (let [key, value] of map) {
+        if (value.times > 0) {
+          this.listSorted.push({
+            index: i,
+            name: key,
+            percentage: Math.round((value.pts / value.times) * 100) + "%",
+            points: value.pts,
+            times: value.times,
+          });
+          i++;
+        }
+      }
+    });
+
+    this.$store.state.socket.on("OK", () => {
+      this.randomAnimes();
     });
   },
 };

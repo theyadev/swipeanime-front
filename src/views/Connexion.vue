@@ -71,6 +71,9 @@ export default {
       const query = `
        query ($userName: String, $type: MediaType) {
   anime: MediaListCollection(userName: $userName, type: $type) {
+    user{
+      name
+    }
     lists {
       entries {
         status
@@ -149,7 +152,7 @@ export default {
         animes = [...animes, ...e.entries];
       });
       localStorage.account = JSON.stringify({
-        userName: this.name,
+        userName: userExist.data.anime.user.name,
         list: animes,
       });
       this.$store.state.socket.emit("INIT", {
