@@ -8,7 +8,7 @@
     </div>
 
     <v-card elevation="2" shaped class="mx-auto my-1 pb-3 pt-0" width="1050">
-      <v-card elevation="1" color="dark" dark>
+      <v-card elevation="1" color="orange darken-4" dark>
         <v-row no-gutters
           ><v-col v-if="random1 != null" cols="12" sm="4">
             <div class="text-center pa-1 text-sm-h6">
@@ -59,7 +59,8 @@
       <v-row no-gutters class="mt-2">
         <v-col v-if="random1 != null" cols="12" sm="4">
           <v-img
-            class="mx-auto"
+            @click="choose(random1.title.romaji, random2.title.romaji)"
+            class="mx-auto imgHover"
             :aspect-ratio="2 / 3"
             max-width="300"
             lazy-src="https://picsum.photos/id/11/10/6"
@@ -69,7 +70,8 @@
         <v-spacer></v-spacer>
         <v-col v-if="random2 != null" cols="12" sm="4">
           <v-img
-            class="mx-auto"
+            @click="choose(random2.title.romaji, random1.title.romaji)"
+            class="mx-auto imgHover"
             max-width="300"
             :aspect-ratio="2 / 3"
             lazy-src="https://picsum.photos/id/11/10/6"
@@ -102,6 +104,12 @@
     </v-card>
   </v-app>
 </template>
+
+<style>
+.imgHover:hover {
+  cursor: pointer;
+}
+</style>
 <script>
 export default {
   data() {
