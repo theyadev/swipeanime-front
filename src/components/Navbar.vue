@@ -35,10 +35,12 @@
       <v-list nav dense>
         <v-list-item-group
           v-model="group"
-          active-class="deep-purple--text text--accent-4"
+          active-class="orange--text text--accent-4"
         >
           <v-list-item>
-            <v-list-item-title><b>Home</b></v-list-item-title>
+            <v-list-item-title @click="go('HOME')"
+              ><b>Home</b></v-list-item-title
+            >
           </v-list-item>
           <v-divider></v-divider>
 
@@ -47,7 +49,13 @@
           </v-list-item>
 
           <v-list-item>
-            <v-list-item-title>Profile</v-list-item-title>
+            <v-list-item-title @click="go('SWIPE')">Swipe</v-list-item-title>
+          </v-list-item>
+
+          <v-list-item>
+            <v-list-item-title @click="go('SCORING')"
+              >Scoring</v-list-item-title
+            >
           </v-list-item>
         </v-list-item-group>
       </v-list>
@@ -64,6 +72,33 @@ export default {
       drawer: null,
     };
   },
-  methods: {},
+  methods: {
+    go(where) {
+      switch (where) {
+        case "HOME":
+          if (this.$route.path == "/") return;
+          this.$router.push("/");
+          break;
+
+        case "LOGIN":
+          if (this.$route.path == "/connexion") return;
+          this.$router.push("/connexion");
+          break;
+
+        case "SCORING":
+          if (this.$route.path == "/scoring") return;
+          this.$router.push("/scoring");
+          break;
+
+        case "SWIPE":
+          if (this.$route.path == "/swipe") return;
+          this.$router.push("/swipe");
+          break;
+
+        default:
+          break;
+      }
+    },
+  },
 };
 </script>
