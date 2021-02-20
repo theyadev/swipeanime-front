@@ -67,71 +67,12 @@ export default {
     };
   },
   methods: {
-    getUser() {
-      const query = `
-       query ($userName: String, $type: MediaType) {
-  anime: MediaListCollection(userName: $userName, type: $type) {
-    user{
-      name
-    }
-    lists {
-      entries {
-        status
-        media {
-          bannerImage
-          coverImage {
-            extraLarge
-            color
-          }
-          title {
-            romaji
-            english
-          }
-          format
-          synonyms
-        }
-      }
-    }
-  }
-}
-`;
-
-      return fetch("https://graphql.anilist.co", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-        },
-        body: JSON.stringify({
-          query: query,
-          variables: { userName: this.name, type: this.list.toUpperCase() },
-        }),
-      })
-        .then(handleResponse)
-        .then(handleData)
-        .catch(handleError);
-
-      function handleResponse(response) {
-        return response.json().then(function(json) {
-          return response.ok ? json : Promise.reject(json);
-        });
-      }
-
-      function handleData(data) {
-        return data;
-      }
-
-      function handleError(error) {
-        console.log(error);
-        return false;
-      }
-    },
     async validate() {
       if (this.loading == true) return;
       const valid = this.$refs.form.validate();
       if (valid == false) return;
       this.loading = true;
-      const userExist = await this.getUser();
+      const userExist = await this.$store.state.getUser(this.name, this.list);
       if (userExist == false) {
         this.loading = false;
         this.error = true;

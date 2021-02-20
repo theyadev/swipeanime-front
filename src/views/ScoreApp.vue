@@ -20,7 +20,7 @@
               ><v-col cols="12" sm="4"
                 ><v-btn
                   @click="choose(random1.title.romaji, random2.title.romaji)"
-                  class="ma-2"
+                  class="ma-2 mx-auto"
                   color="orange darken-1"
                   dense
                   dark
@@ -36,7 +36,7 @@
               ><v-col cols="12" sm="4"
                 ><v-btn
                   @click="choose(random2.title.romaji, random1.title.romaji)"
-                  class="ma-2"
+                  class="ma-2 mx-auto"
                   color="orange darken-1"
                   dense
                   dark

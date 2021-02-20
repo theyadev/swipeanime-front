@@ -21,7 +21,7 @@
         </template>
 
         <v-list dense>
-          <v-list-item dense @click="() => {}">
+          <v-list-item dense @click="update">
             <v-list-item-title>Update List</v-list-item-title>
           </v-list-item>
           <v-list-item dense @click="() => {}">
@@ -60,6 +60,26 @@
         </v-list-item-group>
       </v-list>
     </v-navigation-drawer>
+     <v-alert
+      v-model="error"
+      dense
+      dismissible
+      elevation="2"
+      class="my-3 mx-auto"
+      width="1000"
+      type="error"
+      >Username not found!</v-alert
+    >
+     <v-alert
+      v-model="success"
+      dense
+      dismissible
+      elevation="2"
+      class="my-3 mx-auto"
+      width="1000"
+      type="success"
+      >List successfully updated!</v-alert
+    >
   </div>
 </template>
 
@@ -70,9 +90,49 @@ export default {
     return {
       group: null,
       drawer: null,
+      loading: false,
+      error: false,
+      success:false
     };
   },
   methods: {
+    async update() {
+      const account = JSON.parse(localStorage.account),
+        user = account.userName,
+        list = account.list;
+      if (this.loading == true) return;
+      this.loading = true;
+      const userExist = await this.$store.state.getUser(
+        user,
+        list[0].media.type
+      );
+      if (userExist == false) {
+        this.loading = false;
+        this.error = true;
+        return;
+      }
+      const lists = userExist.data.anime.lists;
+      let animes = [];
+      lists.forEach((e) => {
+        e.entries = e.entries.filter(
+          (y) =>
+            y.status != "PLANNING" &&
+            y.media.format != "SPECIAL" &&
+            y.media.format != "OVA" &&
+            y.media.format != "MUSIC" &&
+            y.media.format != "SPECIAL"
+        );
+
+        animes = [...animes, ...e.entries];
+      });
+      localStorage.account = JSON.stringify({
+        userName: userExist.data.anime.user.name,
+        list: animes,
+      });
+      console.log('SUCCESS');
+      this.loading = false;
+      this.success= true
+    },
     go(where) {
       switch (where) {
         case "HOME":
