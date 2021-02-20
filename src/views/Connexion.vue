@@ -100,7 +100,6 @@ export default {
         list: animes,
         of: this.name,
       });
-      localStorage.connected = true;
       this.$store.commit("connection");
       this.$router.push("/");
     },

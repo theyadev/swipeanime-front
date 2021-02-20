@@ -24,7 +24,7 @@
           <v-list-item dense @click="update">
             <v-list-item-title>Update List</v-list-item-title>
           </v-list-item>
-          <v-list-item dense @click="() => {}">
+          <v-list-item dense @click="deco">
             <v-list-item-title>Sign Out</v-list-item-title>
           </v-list-item>
         </v-list>
@@ -60,7 +60,7 @@
         </v-list-item-group>
       </v-list>
     </v-navigation-drawer>
-     <v-alert
+    <v-alert
       v-model="error"
       dense
       dismissible
@@ -70,7 +70,7 @@
       type="error"
       >Username not found!</v-alert
     >
-     <v-alert
+    <v-alert
       v-model="success"
       dense
       dismissible
@@ -92,10 +92,15 @@ export default {
       drawer: null,
       loading: false,
       error: false,
-      success:false
+      success: false,
     };
   },
   methods: {
+    deco() {
+      localStorage.account = null;
+      this.$store.commit("connection");
+      this.$router.push("/connexion");
+    },
     async update() {
       const account = JSON.parse(localStorage.account),
         user = account.userName,
@@ -129,9 +134,8 @@ export default {
         userName: userExist.data.anime.user.name,
         list: animes,
       });
-      console.log('SUCCESS');
       this.loading = false;
-      this.success= true
+      this.success = true;
     },
     go(where) {
       switch (where) {
