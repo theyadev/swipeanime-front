@@ -25,10 +25,10 @@
                   dense
                   dark
                 >
-                  Choose
-                  <v-icon dark right>
+                <v-icon dark left>
                     mdi-checkbox-marked-circle
                   </v-icon>
+                  Choose                 
                 </v-btn></v-col
               >
               <v-col cols="12" sm="4"
