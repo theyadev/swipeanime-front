@@ -68,8 +68,7 @@ const store = new Vuex.Store({
         return data;
       }
 
-      function handleError(error) {
-        console.log(error);
+      function handleError() {
         return false;
       }
     },
