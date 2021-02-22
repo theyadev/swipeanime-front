@@ -78,9 +78,7 @@ const store = new Vuex.Store({
       state.connected == true
         ? (state.connected = false)
         : (state.connected = true);
-      localStorage.connected == "true" || localStorage.connected == true
-        ? (localStorage.connected = false)
-        : (localStorage.connected = true);
+      localStorage.connected = state.connected;
     },
   },
 });
