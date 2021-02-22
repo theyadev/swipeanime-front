@@ -103,11 +103,34 @@
         dense
         :search="search"
         :headers="headers"
+        :single-expand="singleExpand"
+        :expanded.sync="expanded"
         :items="listSorted"
         :items-per-page="10"
+        item-key="name"
+        show-expand
         loading-text="Loading... Please wait"
         class="mr-5 ml-5"
-      ></v-data-table>
+      >
+        <template v-slot:expanded-item="{ headers, item }">
+          <td :colspan="headers.length">
+            <div v-for="h in item.history" :key="h.c">
+              <span v-if="h.c == item.name">
+                <v-icon dark left color="green">
+                  mdi-arrow-up-bold
+                </v-icon>
+                {{ h.r }}
+              </span>
+              <span v-if="h.r == item.name">
+                <v-icon dark left color="red">
+                  mdi-arrow-down-bold
+                </v-icon>
+                {{ h.c }}
+              </span>
+            </div>
+          </td>
+        </template>
+      </v-data-table>
     </v-card>
   </v-app>
 </template>
@@ -120,6 +143,8 @@
 export default {
   data() {
     return {
+      expanded: [],
+      singleExpand: true,
       hover1: false,
       hover2: false,
       headers: [
@@ -143,6 +168,11 @@ export default {
     };
   },
   methods: {
+    getColor(p) {
+      if (p > 70) return "green";
+      else if (p > 50) return "orange";
+      else return "red";
+    },
     choose(anime, other) {
       this.$store.state.socket.emit("CHOOSE", {
         choisis: anime,
@@ -201,6 +231,7 @@ export default {
             percentage: Math.round((value.pts / value.times) * 100),
             points: value.pts,
             times: value.times,
+            history: value.history,
           });
           i++;
         }
