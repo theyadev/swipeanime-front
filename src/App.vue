@@ -3,6 +3,14 @@
     <Navbar />
 
     <router-view />
+    <v-footer color="orange darken-1" padless>
+      <v-row justify="center" no-gutters>
+        <v-col class="orange darken-2 py-4 text-center white--text" cols="12">
+          Copyright © {{ new Date().getFullYear() }}
+          <strong>Swipe Anime</strong>
+        </v-col>
+      </v-row>
+    </v-footer>
   </v-app>
 </template>
 
@@ -68,6 +76,8 @@ export default {
         e.entries = e.entries.filter(
           (y) =>
             y.status != "PLANNING" &&
+            y.status != "PAUSED" &&
+            y.status != "DROPPED" &&
             y.media.format != "SPECIAL" &&
             y.media.format != "OVA" &&
             y.media.format != "MUSIC" &&
