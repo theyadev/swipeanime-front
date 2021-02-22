@@ -7,34 +7,57 @@
       </div>
     </div>
 
-    <v-card elevation="2" shaped class="mx-auto my-1 pb-3 pt-0" width="1050">
-      <v-card elevation="1" color="orange darken-4" dark>
+    <v-card elevation="2" class="mx-auto my-1 pb-3 pt-0" width="1050">
+      <v-card elevation="1" color="orange darken-2" dark>
         <v-row no-gutters
           ><v-col v-if="random1 != null" cols="12" sm="4">
             <div class="text-center pa-1 text-sm-h6">
               {{ random1.title.romaji }}
             </div></v-col
           >
-          <v-spacer
-            ><v-row no-gutters
+          <v-spacer><div class="text-center pa-1 text-md-h6">OR</div></v-spacer>
+          <v-col v-if="random2 != null" cols="12" sm="4"
+            ><div class="text-center pa-1 text-sm-h6">
+              {{ random2.title.romaji }}
+            </div></v-col
+          >
+        </v-row>
+      </v-card>
+      <v-row align="center" justify="center" no-gutters class="mt-2">
+        <v-col v-if="random1 != null" cols="12" sm="4">
+          <v-img
+            @click="choose(random1.title.romaji, random2.title.romaji)"
+            class="mx-auto imgHover"
+            :aspect-ratio="2 / 3"
+            max-width="300"
+            lazy-src="../assets/lazyImg.jpg"
+            :src="random1.coverImage.extraLarge"
+            @mouseover="hover1 = true"
+            @mouseleave="hover1 = false"
+          ></v-img>
+        </v-col>
+        <v-spacer>
+          <v-container fluid>
+            <v-row no-gutters
               ><v-col cols="12" sm="4"
                 ><v-btn
+                  rounded
                   @click="choose(random1.title.romaji, random2.title.romaji)"
                   class="ma-2 mx-auto"
                   color="orange darken-1"
                   dense
                   dark
                 >
-                <v-icon dark left>
+                  <v-icon dark left>
                     mdi-checkbox-marked-circle
                   </v-icon>
-                  Choose                 
+                  Choose
                 </v-btn></v-col
               >
+              <v-spacer></v-spacer>
               <v-col cols="12" sm="4"
-                ><div class="text-center pa-1 text-md-h6">OR</div></v-col
-              ><v-col cols="12" sm="4"
                 ><v-btn
+                  rounded
                   @click="choose(random2.title.romaji, random1.title.romaji)"
                   class="ma-2 mx-auto"
                   color="orange darken-1"
@@ -48,34 +71,18 @@
                 </v-btn></v-col
               ></v-row
             >
-          </v-spacer>
-          <v-col v-if="random2 != null" cols="12" sm="4"
-            ><div class="text-center pa-1 text-sm-h6">
-              {{ random2.title.romaji }}
-            </div></v-col
-          >
-        </v-row>
-      </v-card>
-      <v-row no-gutters class="mt-2">
-        <v-col v-if="random1 != null" cols="12" sm="4">
-          <v-img
-            @click="choose(random1.title.romaji, random2.title.romaji)"
-            class="mx-auto imgHover"
-            :aspect-ratio="2 / 3"
-            max-width="300"
-            lazy-src="https://picsum.photos/id/11/10/6"
-            :src="random1.coverImage.extraLarge"
-          ></v-img>
-        </v-col>
-        <v-spacer></v-spacer>
+          </v-container>
+        </v-spacer>
         <v-col v-if="random2 != null" cols="12" sm="4">
           <v-img
+            lazy-src="../assets/lazyImg.jpg"
             @click="choose(random2.title.romaji, random1.title.romaji)"
             class="mx-auto imgHover"
             max-width="300"
             :aspect-ratio="2 / 3"
-            lazy-src="https://picsum.photos/id/11/10/6"
             :src="random2.coverImage.extraLarge"
+            @mouseover="hover2 = true"
+            @mouseleave="hover2 = false"
           ></v-img>
         </v-col>
       </v-row>
@@ -104,7 +111,6 @@
     </v-card>
   </v-app>
 </template>
-
 <style>
 .imgHover:hover {
   cursor: pointer;
@@ -114,6 +120,8 @@
 export default {
   data() {
     return {
+      hover1: false,
+      hover2: false,
       headers: [
         {
           text: "#",
@@ -122,7 +130,7 @@ export default {
           value: "index",
         },
         { text: "Name", value: "name" },
-        { text: "Percentage", value: "percentage" },
+        { text: "Percentage (%)", value: "percentage" },
         { text: "Points", value: "points" },
         { text: "Times", value: "times" },
       ],
@@ -190,7 +198,7 @@ export default {
           this.listSorted.push({
             index: i,
             name: key,
-            percentage: Math.round((value.pts / value.times) * 100) + "%",
+            percentage: Math.round((value.pts / value.times) * 100),
             points: value.pts,
             times: value.times,
           });
