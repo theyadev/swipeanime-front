@@ -55,8 +55,8 @@
                 </v-btn></v-col
               >
               <v-spacer></v-spacer>
-              <v-col cols="12" sm="4"
-                ><v-btn
+              <v-col cols="12" sm="4">
+                <v-btn
                   rounded
                   @click="choose(random2.title.romaji, random1.title.romaji)"
                   class="ma-2 mx-auto"
@@ -89,7 +89,11 @@
     </v-card>
     <v-card class="ma-10">
       <v-card-title>
-        Sorted List
+        <span class="ml-5">Your List</span>
+        <v-spacer></v-spacer>
+        <v-btn color="red darken-2" small dense @click="dialog = !dialog">
+          <v-icon>mdi-alert</v-icon> Reset
+        </v-btn>
         <v-spacer></v-spacer>
         <v-text-field
           v-model="search"
@@ -109,28 +113,54 @@
         :items-per-page="10"
         item-key="name"
         show-expand
-        loading-text="Loading... Please wait"
+        loading="listSorted.length > 0"
+        loading-text="Looks like your list is empty. Start to make some choice now!"
         class="mr-5 ml-5"
       >
         <template v-slot:expanded-item="{ headers, item }">
           <td :colspan="headers.length">
             <div v-for="h in item.history" :key="h.c">
-              <span v-if="h.c == item.name">
-                <v-icon dark left color="green">
-                  mdi-arrow-up-bold
-                </v-icon>
-                {{ h.r }}
-              </span>
-              <span v-if="h.r == item.name">
-                <v-icon dark left color="red">
-                  mdi-arrow-down-bold
-                </v-icon>
-                {{ h.c }}
-              </span>
+              <v-row no-gutters class="mt-2 mb-2">
+                <v-col cols="12" sm="4">
+                  <span v-if="h.c == item.name">
+                    <v-icon dark left color="green">
+                      mdi-arrow-up-bold
+                    </v-icon>
+                    {{ h.r }}
+                  </span>
+                  <span v-if="h.r == item.name">
+                    <v-icon dark left color="red">
+                      mdi-arrow-down-bold
+                    </v-icon>
+                    {{ h.c }}
+                  </span>
+                </v-col>
+                <v-spacer></v-spacer>
+                <v-col cols="12" sm="4">
+                  <div v-if="h.date" class="text-right mr-5">
+                    {{ format(new Date(h.date), "MM/dd/yyyy") }}
+                  </div>
+                </v-col>
+              </v-row>
             </div>
           </td>
         </template>
       </v-data-table>
+      <v-dialog v-model="dialog" max-width="500px">
+        <v-card light>
+          <v-card-title class="headline">
+            Are you sure?
+          </v-card-title>
+
+          <v-card-subtitle>This will reset all your data!</v-card-subtitle>
+
+          <v-card-actions>
+            <v-btn @click="reset" dark color="error">
+              RESET
+            </v-btn>
+          </v-card-actions>
+        </v-card>
+      </v-dialog>
     </v-card>
   </v-app>
 </template>
@@ -140,10 +170,13 @@
 }
 </style>
 <script>
+import { format } from "date-fns";
+
 export default {
   data() {
     return {
       expanded: [],
+      dialog: false,
       singleExpand: true,
       hover1: false,
       hover2: false,
@@ -168,6 +201,7 @@ export default {
     };
   },
   methods: {
+    format,
     getColor(p) {
       if (p > 70) return "green";
       else if (p > 50) return "orange";
@@ -178,6 +212,19 @@ export default {
         choisis: anime,
         refus: other,
         by: this.user,
+      });
+      this.$store.state.socket.emit("GET", {
+        of: this.user,
+      });
+    },
+    reset() {
+      this.$store.state.socket.emit("RESET", {
+        of: this.user,
+        animes: this.list,
+      });
+      this.$store.state.socket.emit("INIT", {
+        list: this.list,
+        of: this.user,
       });
       this.$store.state.socket.emit("GET", {
         of: this.user,
