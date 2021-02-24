@@ -121,7 +121,9 @@ export default {
       lists.forEach((e) => {
         e.entries = e.entries.filter(
           (y) =>
-            y.status != "PLANNING" &&
+           y.status != "PLANNING" &&
+            y.status != "PAUSED" &&
+            y.status != "DROPPED" &&
             y.media.format != "SPECIAL" &&
             y.media.format != "OVA" &&
             y.media.format != "MUSIC" &&
