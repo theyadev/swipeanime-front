@@ -107,49 +107,24 @@
         dense
         :search="search"
         :headers="headers"
-        :single-expand="singleExpand"
-        :expanded.sync="expanded"
         :items="listSorted"
         :items-per-page="10"
         item-key="name"
-        show-expand
+        :single-expand="singleExpand"
+        :expanded.sync="expanded"
         loading="listSorted.length > 0"
         loading-text="Looks like your list is empty. Start to make some choice now!"
         class="mr-5 ml-5"
+        show-expand
       >
         <template v-slot:expanded-item="{ headers, item }">
           <td :colspan="headers.length">
-            <div v-for="h in item.history" :key="h.c">
-              <v-row no-gutters class="mt-2 mb-2">
-                <v-col cols="12" sm="4">
-                  <span v-if="h.c == item.name">
-                    <v-icon dark left color="green">
-                      mdi-arrow-up-bold
-                    </v-icon>
-                    {{ h.r }}
-                  </span>
-                  <span v-if="h.r == item.name">
-                    <v-icon dark left color="red">
-                      mdi-arrow-down-bold
-                    </v-icon>
-                    {{ h.c }}
-                  </span>
-                </v-col>
-                <v-spacer></v-spacer>
-                <v-col cols="12" sm="4">
-                  <div v-if="h.date" class="text-right mr-5">
-                    {{ format(new Date(h.date), "MM/dd/yyyy") }}
-                  </div>
-                </v-col>
-              </v-row>
-            </div>
             <v-btn text x-small>
               <v-icon x-small>mdi-cog</v-icon>
             </v-btn>
             <v-btn text x-small @click="getMoreInfo(item)">
               More Info
             </v-btn>
-            <div class="mb-3"></div>
           </td>
         </template>
       </v-data-table>
@@ -169,7 +144,12 @@
           </v-card-actions>
         </v-card>
       </v-dialog>
-      <v-dialog v-model="moreInfo" fullscreen hide-overlay>
+      <v-dialog
+        v-model="moreInfo"
+        fullscreen
+        hide-overlay
+        transition="dialog-bottom-transition"
+      >
         <v-card tile v-if="moreInfoAnime">
           <v-toolbar flat dark dense color="orange darken-2">
             <v-btn
@@ -182,12 +162,17 @@
             >
               <v-icon>mdi-close</v-icon>
             </v-btn>
-            <v-toolbar-title>{{
-              moreInfoAnime && moreInfoAnime.title.romaji
-            }}</v-toolbar-title>
+            <v-toolbar-title
+              >{{ moreInfoAnime && moreInfoAnime.title.romaji }}
+            </v-toolbar-title>
             <v-spacer></v-spacer>
           </v-toolbar>
-          <v-img :src="moreInfoAnime.bannerImage" height="300px" />
+          <v-img
+          style="  filter: blur(1px);-webkit-filter: blur(1px);"
+            :src="moreInfoAnime.bannerImage"
+            lazy-src="../assets/lazyImg.jpg"
+            height="300px"
+          />
           <v-card-text>
             <v-card tile class="mx-auto my-12">
               <v-row no-gutters>
@@ -226,7 +211,7 @@
               <v-card-text>
                 <v-row align="center" class="mx-0">
                   <v-rating
-                    :value="moreInfoAnime.averageScore"
+                    :value="moreInfoAnime.averageScore / 2 / 10"
                     color="amber"
                     dense
                     half-increments
@@ -234,14 +219,75 @@
                     size="14"
                   ></v-rating>
 
-                  <div class="grey--text ml-4">
-                    {{ moreInfoAnime.averageScore }}%
-                  </div>
+                  <v-tooltip bottom>
+                    <template v-slot:activator="{ on, attrs }">
+                      <span v-bind="attrs" v-on="on" class="grey--text ml-2">
+                        {{ moreInfoAnime.averageScore }}%
+                      </span>
+                    </template>
+                    <span>Global Rating</span>
+                  </v-tooltip>
+
+                  <v-rating
+                    class="ml-5"
+                    :value="moreInfoAnime.percentage / 2 / 10"
+                    color="blue"
+                    dense
+                    half-increments
+                    readonly
+                    size="14"
+                  ></v-rating>
+
+                  <v-tooltip bottom>
+                    <template v-slot:activator="{ on, attrs }">
+                      <span class="grey--text ml-2" v-bind="attrs" v-on="on">
+                        {{ moreInfoAnime.percentage }}%
+                      </span>
+                    </template>
+                    <span>Your Rating</span>
+                  </v-tooltip>
                 </v-row>
                 <div class="my-4 subtitle-1">
                   {{ moreInfoAnime.title.english }}
                 </div>
-                <v-divider class="mb-5"></v-divider>
+                <v-divider class="mb-4"></v-divider>
+                <v-row no-gutters class="text-center">
+                  <v-col cols="12" sm="4">
+                    <p><b>Points: </b>{{ moreInfoAnime.points }}</p>
+                  </v-col>
+                  <v-col cols="12" sm="4">
+                    <p><b>Times: </b>{{ moreInfoAnime.times }}</p>
+                  </v-col>
+                  <v-col cols="12" sm="4">
+                    <p><b>Percentage: </b>{{ moreInfoAnime.percentage }}</p>
+                  </v-col>
+                </v-row>
+                <v-divider class="mb-3"></v-divider>
+                <div v-for="h in moreInfoAnime.history" :key="h.c + h.r">
+                  <v-row no-gutters class="mt-2 mb-2">
+                    <v-col cols="12" sm="4">
+                      <span v-if="h.c == moreInfoAnime.title.romaji">
+                        <v-icon dark left color="green">
+                          mdi-arrow-up-bold
+                        </v-icon>
+                        {{ h.r }}
+                      </span>
+                      <span v-if="h.r == moreInfoAnime.title.romaji">
+                        <v-icon dark left color="red">
+                          mdi-arrow-down-bold
+                        </v-icon>
+                        {{ h.c }}
+                      </span>
+                    </v-col>
+                    <v-spacer></v-spacer>
+                    <v-col cols="12" sm="4">
+                      <div v-if="h.date" class="text-right mr-5">
+                        {{ format(new Date(h.date), "MM/dd/yyyy") }}
+                      </div>
+                    </v-col>
+                  </v-row>
+                </div>
+                <v-divider class="mb-4"></v-divider>
                 <div class="text-center">
                   <v-btn
                     v-if="moreInfoAnime.blacklist == false"
@@ -314,6 +360,10 @@ export default {
       this.moreInfoAnime = this.list[i].media;
       if (data.blacklist == true) this.moreInfoAnime.blacklist = true;
       else this.moreInfoAnime.blacklist = false;
+      this.moreInfoAnime.history = data.history;
+      this.moreInfoAnime.times = data.times;
+      this.moreInfoAnime.points = data.points;
+      this.moreInfoAnime.percentage = data.percentage;
       this.moreInfo = true;
     },
     format,
