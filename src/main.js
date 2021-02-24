@@ -36,6 +36,9 @@ const store = new Vuex.Store({
           }
           format
           synonyms
+          description
+    averageScore
+    genres
         }
       }
     }
