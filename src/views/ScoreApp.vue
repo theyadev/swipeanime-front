@@ -143,6 +143,13 @@
                 </v-col>
               </v-row>
             </div>
+            <v-btn text x-small>
+              <v-icon x-small>mdi-cog</v-icon>
+            </v-btn>
+            <v-btn text x-small @click="getMoreInfo(item)">
+              More Info
+            </v-btn>
+            <div class="mb-3"></div>
           </td>
         </template>
       </v-data-table>
@@ -158,7 +165,106 @@
             <v-btn @click="reset" dark color="error">
               RESET
             </v-btn>
+            <v-btn text @click="dialog = false">Close</v-btn>
           </v-card-actions>
+        </v-card>
+      </v-dialog>
+      <v-dialog v-model="moreInfo" fullscreen hide-overlay>
+        <v-card tile v-if="moreInfoAnime">
+          <v-toolbar flat dark dense color="orange darken-2">
+            <v-btn
+              icon
+              dark
+              @click="
+                moreInfo = false;
+                moreInfoAnime = null;
+              "
+            >
+              <v-icon>mdi-close</v-icon>
+            </v-btn>
+            <v-toolbar-title>{{
+              moreInfoAnime && moreInfoAnime.title.romaji
+            }}</v-toolbar-title>
+            <v-spacer></v-spacer>
+          </v-toolbar>
+          <v-img :src="moreInfoAnime.bannerImage" height="300px" />
+          <v-card-text>
+            <v-card tile class="mx-auto my-12">
+              <v-row no-gutters>
+                <v-col cols="12" sm="2">
+                  <v-img
+                    class="mx-auto"
+                    style="border-radius: 2%"
+                    :src="moreInfoAnime.coverImage.extraLarge"
+                    max-width="200"
+                    :aspect-ration="2 / 3"
+                  ></v-img
+                ></v-col>
+                <v-divider vertical></v-divider>
+                <v-col cols="12" sm="8">
+                  <v-subheader>Description</v-subheader>
+                  <div class="ml-4" v-html="moreInfoAnime.description"></div
+                ></v-col>
+                <v-spacer></v-spacer>
+                <v-divider vertical></v-divider>
+                <v-col cols="12" sm="1">
+                  <v-list-item
+                    v-for="genre in moreInfoAnime.genres"
+                    :key="genre"
+                  >
+                    <v-list-item-content>
+                      <v-list-item-title class="text-center">{{
+                        genre
+                      }}</v-list-item-title>
+                    </v-list-item-content>
+                  </v-list-item>
+                </v-col>
+              </v-row>
+
+              <v-card-title>{{ moreInfoAnime.title.romaji }}</v-card-title>
+
+              <v-card-text>
+                <v-row align="center" class="mx-0">
+                  <v-rating
+                    :value="moreInfoAnime.averageScore"
+                    color="amber"
+                    dense
+                    half-increments
+                    readonly
+                    size="14"
+                  ></v-rating>
+
+                  <div class="grey--text ml-4">
+                    {{ moreInfoAnime.averageScore }}%
+                  </div>
+                </v-row>
+                <div class="my-4 subtitle-1">
+                  {{ moreInfoAnime.title.english }}
+                </div>
+                <v-divider class="mb-5"></v-divider>
+                <div class="text-center">
+                  <v-btn
+                    v-if="moreInfoAnime.blacklist == false"
+                    class="ma-2"
+                    color="red"
+                    @click="blacklist(moreInfoAnime.title.romaji, true)"
+                  >
+                    Blacklist Anime
+                  </v-btn>
+                  <v-btn
+                    v-if="moreInfoAnime.blacklist == true"
+                    class="ma-2"
+                    color="green"
+                    @click="blacklist(moreInfoAnime.title.romaji, false)"
+                  >
+                    Unblacklist Anime
+                  </v-btn>
+                </div>
+              </v-card-text>
+            </v-card>
+          </v-card-text>
+
+          <div style="flex: 1 1 auto;"></div>
         </v-card>
       </v-dialog>
     </v-card>
@@ -176,6 +282,8 @@ export default {
   data() {
     return {
       expanded: [],
+      moreInfo: false,
+      moreInfoAnime: null,
       dialog: false,
       singleExpand: true,
       hover1: false,
@@ -201,6 +309,13 @@ export default {
     };
   },
   methods: {
+    getMoreInfo(data) {
+      const i = this.list.findIndex((e) => e.media.title.romaji == data.name);
+      this.moreInfoAnime = this.list[i].media;
+      if (data.blacklist == true) this.moreInfoAnime.blacklist = true;
+      else this.moreInfoAnime.blacklist = false;
+      this.moreInfo = true;
+    },
     format,
     getColor(p) {
       if (p > 70) return "green";
@@ -217,6 +332,13 @@ export default {
         of: this.user,
       });
     },
+    blacklist(anime, state) {
+      this.$store.state.socket.emit("BLACKLIST", {
+        anime: anime,
+        of: this.user,
+        state: state,
+      });
+    },
     reset() {
       this.$store.state.socket.emit("RESET", {
         of: this.user,
@@ -229,6 +351,7 @@ export default {
       this.$store.state.socket.emit("GET", {
         of: this.user,
       });
+      this.dialog = false;
     },
     randomAnimes() {
       this.random1 = this.list[
@@ -238,8 +361,12 @@ export default {
       this.random2 = this.list[
         Math.floor(Math.random() * this.list.length)
       ].media;
-
-      while (this.random1 == this.random2) {
+      while (this.random1.blacklist == true) {
+        this.random1 = this.list[
+          Math.floor(Math.random() * this.list.length)
+        ].media;
+      }
+      while (this.random1 == this.random2 && this.random2.blacklist == true) {
         this.random2 = this.list[
           Math.floor(Math.random() * this.list.length)
         ].media;
@@ -279,9 +406,16 @@ export default {
             points: value.pts,
             times: value.times,
             history: value.history,
+            blacklist: value.blacklist || false,
           });
           i++;
         }
+      }
+      if (this.moreInfoAnime != null) {
+        const i = this.listSorted.findIndex(
+          (e) => e.name == this.moreInfoAnime.title.romaji
+        );
+        this.getMoreInfo(this.listSorted[i]);
       }
     });
 
