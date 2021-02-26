@@ -11,7 +11,82 @@ Vue.use(Vuex);
 const store = new Vuex.Store({
   state: {
     socket: io("localhost:1336"),
+    account: null,
     connected: localStorage.connected || false,
+    getUserInfo: function(name) {
+      const query = `query ($userName: String) {
+        User(name: $userName) {
+          id
+          bannerImage
+          favourites {
+            anime {
+              nodes {
+                title {
+                  romaji
+                  english
+                  native
+                  userPreferred
+                }
+                id
+              }
+            }
+          }
+          avatar {
+            large
+          }
+          statistics {
+            anime {
+              count
+              minutesWatched
+              episodesWatched
+              genres{
+                genre
+                count
+                meanScore
+              }
+              tags {
+                tag {
+                  id
+                  name
+                }
+                count
+                meanScore
+              }
+            }
+          }
+        }
+      }
+      
+      `;
+      return fetch("https://graphql.anilist.co", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify({
+          query: query,
+          variables: { userName: name },
+        }),
+      })
+        .then(handleResponse)
+        .then(handleData)
+        .catch(handleError);
+
+      function handleResponse(response) {
+        return response.json().then(function(json) {
+          return response.ok ? json : Promise.reject(json);
+        });
+      }
+
+      function handleData(data) {
+        return data;
+      }
+
+      function handleError() {
+        return null;
+      }
+    },
     getUser: function(name, list) {
       const query = `
        query ($userName: String, $type: MediaType) {
@@ -72,7 +147,7 @@ const store = new Vuex.Store({
       }
 
       function handleError() {
-        return false;
+        return null;
       }
     },
   },
