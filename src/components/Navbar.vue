@@ -43,10 +43,23 @@
             >
           </v-list-item>
           <v-divider></v-divider>
+          <div
+            v-if="
+              this.$store.state.account && this.$store.state.account.userName
+            "
+          >
+            <v-list-item>
+              <v-list-item-title
+                @click="go('STATS', $store.state.account.userName)"
+                >Stats</v-list-item-title
+              >
+            </v-list-item>
 
-          <v-list-item>
-            <v-list-item-title>Account</v-list-item-title>
-          </v-list-item>
+            <v-list-item>
+              <v-list-item-title>Blacklist</v-list-item-title>
+            </v-list-item>
+          </div>
+          <v-divider></v-divider>
 
           <v-list-item>
             <v-list-item-title @click="go('SWIPE')">Swipe</v-list-item-title>
@@ -88,6 +101,7 @@ export default {
   name: "Navbar",
   data() {
     return {
+      user: "",
       group: null,
       drawer: null,
       loading: false,
@@ -97,6 +111,7 @@ export default {
   },
   methods: {
     deco() {
+      this.$store.state.account = null;
       localStorage.account = null;
       this.$store.commit("connection");
       this.$router.push("/connexion");
@@ -111,7 +126,7 @@ export default {
         user,
         list[0].media.type
       );
-      if (userExist == false) {
+      if (userExist == null) {
         this.loading = false;
         this.error = true;
         return;
@@ -121,7 +136,7 @@ export default {
       lists.forEach((e) => {
         e.entries = e.entries.filter(
           (y) =>
-           y.status != "PLANNING" &&
+            y.status != "PLANNING" &&
             y.status != "PAUSED" &&
             y.status != "DROPPED" &&
             y.media.format != "SPECIAL" &&
@@ -139,7 +154,10 @@ export default {
       this.loading = false;
       this.success = true;
     },
-    go(where) {
+    go(where, user) {
+      if (where && user) {
+        this.$router.push("/user/" + user);
+      }
       switch (where) {
         case "HOME":
           if (this.$route.path == "/") return;

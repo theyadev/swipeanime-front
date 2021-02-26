@@ -3,6 +3,7 @@ import VueRouter from "vue-router";
 import ScoreApp from "../views/ScoreApp.vue";
 import SwipeApp from "../views/SwipeApp.vue";
 import Connexion from "../views/Connexion.vue";
+import Profile from "../views/Profile.vue";
 
 Vue.use(VueRouter);
 
@@ -12,7 +13,8 @@ const routes = [
     alias: "/scoring",
     name: "ScoreApp",
     component: ScoreApp,
-  },{
+  },
+  {
     path: "/swipe",
     name: "SwipeApp",
     component: SwipeApp,
@@ -21,6 +23,11 @@ const routes = [
     path: "/connexion",
     name: "Connexion",
     component: Connexion,
+  },
+  {
+    path: "/user/:id",
+    name: "Profile",
+    component: Profile,
   },
   /*{
     path: '/connexion',
