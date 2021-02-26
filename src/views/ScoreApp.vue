@@ -152,14 +152,7 @@
       >
         <v-card tile v-if="moreInfoAnime">
           <v-toolbar flat dark dense color="orange darken-2">
-            <v-btn
-              icon
-              dark
-              @click="
-                moreInfo = false;
-                moreInfoAnime = null;
-              "
-            >
+            <v-btn icon dark @click="closeDialog">
               <v-icon>mdi-close</v-icon>
             </v-btn>
             <v-toolbar-title
@@ -168,7 +161,7 @@
             <v-spacer></v-spacer>
           </v-toolbar>
           <v-img
-          style="  filter: blur(1px);-webkit-filter: blur(1px);"
+            style="  filter: blur(1px);-webkit-filter: blur(1px);"
             :src="moreInfoAnime.bannerImage"
             lazy-src="../assets/lazyImg.jpg"
             height="300px"
@@ -355,6 +348,12 @@ export default {
     };
   },
   methods: {
+    closeDialog() {
+      this.moreInfo = false;
+      setTimeout(() => {
+        this.moreInfoAnime = null;
+      }, 200);
+    },
     getMoreInfo(data) {
       const i = this.list.findIndex((e) => e.media.title.romaji == data.name);
       this.moreInfoAnime = this.list[i].media;
