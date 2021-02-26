@@ -70,6 +70,7 @@ export default {
       const name = x.data.Viewer.name;
       const id = x.data.Viewer.id;
       const userExist = await this.$store.state.getUser(name, "ANIME");
+      if (userExist == null) console.log("ERROR");
       const lists = userExist.data.anime.lists;
       let animes = [];
       lists.forEach((e) => {
@@ -86,11 +87,15 @@ export default {
 
         animes = [...animes, ...e.entries];
       });
+      const user = await this.$store.state.getUserInfo(name);
+
       localStorage.account = JSON.stringify({
         userName: name,
         id: id,
+        userInfo: user.data.User,
         list: animes,
       });
+      this.$store.state.account = JSON.parse(localStorage.account);
       this.$store.state.socket.emit("INIT", {
         list: animes,
         of: name,
@@ -99,11 +104,18 @@ export default {
       this.$router.push("/");
     },
   },
+
   created() {
     let access_token = window.location.hash.split("&")[0].split("=");
     if (access_token[0] != "#access_token") return;
     localStorage.token = access_token[1];
     this.init();
+  },
+  mounted() {
+    if (localStorage.account != "null" && localStorage.account) {
+      const account = JSON.parse(localStorage.account);
+      this.$store.state.account = account;
+    }
   },
 };
 </script>
